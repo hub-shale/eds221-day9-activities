@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(here)
 library(janitor)
+library(reprex)
 ```
 
 Your job is to identify an error, then make a reproducible example that would help future you or someone else understand how to write the code correctly. In other words, your reprex code will *work* and offer a solution to the error thrown in each of the following examples. 
@@ -37,12 +38,31 @@ mack_creek_lengths <- mack_creek_vertebrates %>%
   clean_names() %>% 
   select(year:sampledate) %>% 
   filter(section == "CC") %>% 
-  mutate(across(where(is.character, tolower))) %>% 
+  mutate(across(where(is.character), tolower)) %>% 
   drop_na(species) %>% 
   group_by(species) %>% 
   summarize(mean_length_cm = mean(length1, na.rm = TRUE),
             sd_length_cm = sd(length1, na.rm = TRUE)) %>% 
   ungroup()
+```
+
+```{r}
+library(tidyverse)
+library(stringr)
+
+df = tribble(
+  ~name, ~title, ~age,
+  "todd", "Intern", 24,
+  "sally", "Secretary", 27,
+  "Lucy", "Boss", 36
+)
+# In this case, todd and sally don't have their names capitalized, so we want to do that.
+
+df_new = df %>% 
+  mutate(across(where(is.character), str_to_title))
+
+# note that str_to_title is within across(), but not within where().
+
 ```
 
 ### reprex 2
@@ -55,10 +75,19 @@ mack_creek_vertebrates %>%
   clean_names() %>% 
   filter(species == "ONCL") %>% 
   ggplot(aes(x = length1, y = weight)) +
-         geom_point(aes(shape = 12), color = "purple") +
+         geom_point(shape = 12, color = "purple") +
          theme_minimal() +
          labs(x = "Cutthroat trout length (cm)",
               y = "Weight (g)")
+```
+
+
+```{r}
+# A constant cannot be mapped using aes()! aes() is only for variables.
+ggplot(data= starwars, aes(y = homeworld, x = height)) +
+  geom_col(fill = "purple")
+# so x= and y= need to be in aes() because they are variables, but fill = purple is outside of aes() because I want everything to be purple. aes(fill = ""purple) would try and map to a variable, which would require a variable input.
+
 ```
 
 ## End
